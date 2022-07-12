@@ -34,6 +34,10 @@ def replace(src_str):
     return lambda part: lambda replacement: str(src_str).replace(part, replacement)
 
 
+def join(m):
+    return m.join()
+
+
 class R:
     @staticmethod
     def compose(f, g):
