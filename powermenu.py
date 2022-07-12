@@ -5,7 +5,7 @@ from utils import IO, compose, inc, add, R, \
                   upper, concat, id, Maybe, replace, \
                   first, default
 
-DIR = os.getcwd()
+DIR = os.path.dirname(os.path.abspath(__file__))
 
 power_menu_rofi_command=f"rofi -theme {DIR}/powermenu.rasi"
 
