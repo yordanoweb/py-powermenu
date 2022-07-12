@@ -43,6 +43,10 @@ def log(x):
     return x
 
 
+def unsafePerformIO(io):
+    return io.unsafePerformIO()
+
+
 class R:
     @staticmethod
     def compose(f, g):
