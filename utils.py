@@ -38,6 +38,11 @@ def join(m):
     return m.join()
 
 
+def log(x):
+    print(x)
+    return x
+
+
 class R:
     @staticmethod
     def compose(f, g):
