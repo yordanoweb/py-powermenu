@@ -2,9 +2,7 @@ import os
 import sys
 
 from utils import (
-    IO,
-    unsafePerformIO,
-    Identity,
+    compose
 )
 
 DIR = os.path.dirname(os.path.abspath(__file__))
@@ -26,10 +24,6 @@ power_menu_rofi_command = f"rofi -theme {DIR}/powermenu.rasi"
 power_dialog_cmd = f'echo "{power_options}" | {power_menu_rofi_command} -p "UP - $uptime" -dmenu -selected-row 2'
 
 yes_no_question_cmd = f"{DIR}/confirm"
-
-
-def compose(f, g, h):
-    return lambda x: f(g(h(x)))
 
 
 def replace(src, pattern):
