@@ -18,8 +18,15 @@ def add(n):
     return lambda m: n + m
 
 
-def compose(f):
-    return lambda g: lambda x: f(g(x))
+def compose(*funcs):
+    _funcs = list(funcs)
+    _funcs.reverse()
+    def _compose(x):
+        result = x
+        for f in _funcs:
+            result = f(result)
+        return result
+    return _compose
 
 
 def upper(s):
