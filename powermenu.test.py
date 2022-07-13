@@ -4,7 +4,7 @@ import sys
 from utils import (
     IO,
     unsafePerformIO,
-    replace,
+    Identity,
 )
 
 DIR = os.path.dirname(os.path.abspath(__file__))
@@ -32,13 +32,14 @@ def compose(f, g, h):
     return lambda x: f(g(h(x)))
 
 
-def unsafe_cmd_exec(cmd):
-    def _unsafe_op():
-        proc = os.popen(cmd)
-        res = proc.read().strip()
-        return res
+def replace(src, pattern):
+    return lambda replacement: str(src).replace(pattern, replacement)
 
-    return _unsafe_op
+
+def unsafe_cmd_exec(cmd):
+    proc = os.popen(cmd)
+    res = proc.read().strip()
+    return res
 
 
 def possible_actions(action):
@@ -49,21 +50,21 @@ def possible_actions(action):
         "": lambda: 'rofi -e "Sleep not implemented yet"',
         "": lambda: "bspc quit",
     }
-    return actions[action] if action in actions else lambda: False
+    return actions[action] if action in actions else lambda: "exit"
 
 
-assert callable(unsafe_cmd_exec(uptime_command)), "Not a function"
+unsafe_uptime = lambda: unsafe_cmd_exec(uptime_command)
 
-# ready to call "unsafePerformIO()" and will return sys uptime
-# IO string
-ioUptime = IO(unsafe_cmd_exec(uptime_command))
-
-# IO -> string
-power_menu_fn = compose(
-    unsafe_cmd_exec,
-    replace(power_dialog_cmd)('$uptime'),
-    unsafePerformIO
+# receives a fn that returns side effect (command execution result)
+rofi_power_options_dialog_fn = compose(
+    replace(src=power_dialog_cmd, pattern='$uptime'),
+    unsafePerformIO,
+    IO
 )
 
-assert callable(power_menu_fn), "Not a function"
+selected_power_action = compose(
+    possible_actions,
+    unsafe_cmd_exec,
+    rofi_power_options_dialog_fn
+)
 
