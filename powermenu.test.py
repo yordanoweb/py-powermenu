@@ -36,35 +36,36 @@ def replace(src, pattern):
     return lambda replacement: str(src).replace(pattern, replacement)
 
 
-def unsafe_cmd_exec(cmd):
+def unsafeCmdExec(cmd):
     proc = os.popen(cmd)
     res = proc.read().strip()
     return res
 
 
-def possible_actions(action):
+def operatingSystemCommand(action):
     actions = {
-        "": lambda: "systemctl poweroff",
-        "": lambda: "systemctl reboot",
-        "": lambda: 'rofi -e "Lock not implemented yet"',
-        "": lambda: 'rofi -e "Sleep not implemented yet"',
-        "": lambda: "bspc quit",
+        "": "systemctl poweroff",
+        "": "systemctl reboot",
+        "": 'rofi -e "Lock not implemented yet"',
+        "": 'rofi -e "Sleep not implemented yet"',
+        "": "bspc quit",
     }
-    return actions[action] if action in actions else lambda: "exit"
+    return actions[action] if action in actions else "exit"
 
 
-unsafe_uptime = lambda: unsafe_cmd_exec(uptime_command)
+unsafeUptime = lambda _: unsafeCmdExec(uptime_command)
+unsafePowerDialog = lambda cmd: unsafeCmdExec(cmd)
 
-# receives a fn that returns side effect (command execution result)
-rofi_power_options_dialog_fn = compose(
+powerMenuDialog = compose(
+    unsafePowerDialog,
     replace(src=power_dialog_cmd, pattern='$uptime'),
-    unsafePerformIO,
-    IO
+    unsafeUptime
 )
 
-selected_power_action = compose(
-    possible_actions,
-    unsafe_cmd_exec,
-    rofi_power_options_dialog_fn
+execPowerAction = compose(
+    unsafeCmdExec,
+    operatingSystemCommand,
+    powerMenuDialog
 )
 
+execPowerAction(True)
