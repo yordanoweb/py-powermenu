@@ -2,7 +2,7 @@
 /* Everyone is permitted to copy and distribute copies of this file under GNU-GPL3 */
 
 configuration {
-    font:                           "Iosevka 10";
+    font:                           "Iosevka 12";
     show-icons:                     false;
     display-drun: 					"";
     drun-display-format:            "{icon} {name}";
@@ -18,7 +18,7 @@ window {
     text-color:                     @foreground;
     border:                  		1px;
     border-color:                  	@selected;
-    border-radius:                  0px;
+    border-radius:                  10px;
     width:                          416px;
     location:                       center;
     anchor:                         center;
@@ -101,7 +101,7 @@ element {
     text-color:                     @foreground;
     orientation:                    horizontal;
     border:                  		1px;
-    border-radius:                  0px;
+    border-radius:                  10px;
     border-color:                  	@selected;
     padding:                        23.5px 25px 23.5px 25px;
 }
@@ -129,7 +129,7 @@ element selected {
     background-color:               @selected;
     text-color:                     @background;
     border:                  		0px;
-    border-radius:                  0px;
+    border-radius:                  10px;
     border-color:                  	@selected;
 }
 
