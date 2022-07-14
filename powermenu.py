@@ -98,6 +98,14 @@ Otherwise, the execution stops.
 
 (f, f, Monad a) -> Either b
 """
-powerActionDecision = either(sys.exit, unsafeYesNoQuestion, getPowerActionCommand(True))
+powerActionDecision = either(
+    sys.exit,
+    unsafeYesNoQuestion,
+    getPowerActionCommand(True)
+)
 
-either(sys.exit, unsafeCmdExec, powerActionDecision)
+either(
+    sys.exit,
+    unsafeCmdExec,
+    powerActionDecision
+)
