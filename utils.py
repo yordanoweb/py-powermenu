@@ -136,6 +136,10 @@ class Right(Either):
 
 
 class Maybe:
+
+    def __init__(self, value) -> None:
+       self.value = value
+
     def isNothing(self):
         return self.value == None or self.value == False
 
@@ -146,29 +150,29 @@ class Maybe:
         self.value = x
 
     def inspect(self):
-        return "Nothing" if self.isNothing else f"Just({self.value})"
+        return "Nothing" if self.isNothing() else f"Just({self.value})"
 
     @staticmethod
     def of(x):
         return Maybe(x)
 
     def map(self, fn):
-        return self if self.isNothing else Maybe.of(fn(self.value))
+        return self if self.isNothing() else Maybe.of(fn(self.value))
 
     def ap(self, f):
-        return self if self.isNothing else f.map(self.value)
+        return self if self.isNothing() else f.map(self.value)
 
     def chain(self, fn):
         return self.map(fn).join()
 
     def join(self):
-        return self if self.isNothing else self.value
+        return self if self.isNothing() else self.value
 
     def sequence(self, of):
         return self.traverse(of, id)
 
     def traverse(self, of, fn):
-        return of(self) if self.isNothing else fn(self.value).map(Maybe.of)
+        return of(self) if self.isNothing() else fn(self.value).map(Maybe.of)
 
 
 class IO:
