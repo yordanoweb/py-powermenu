@@ -23,7 +23,7 @@ logout = ""
 power_options = f"{shutdown}\n{reboot}\n{lock}\n{suspend}\n{logout}"
 
 power_menu_rofi_command = f"rofi -theme {DIR}/powermenu.rasi"
-power_dialog_cmd = f'echo "{power_options}" | {power_menu_rofi_command} -p "UP - $uptime" -dmenu -selected-row 2'
+power_dialog_cmd = f'echo "{power_options}" | {power_menu_rofi_command} -p "UP - $UPTIME" -dmenu -selected-row 2'
 
 yes_no_question_cmd = f"{DIR}/confirm"
 
@@ -61,7 +61,7 @@ def unsafeYesNoQuestion(_):
 
 powerMenuDialog = compose(
     unsafePowerDialog,
-    replace(src=power_dialog_cmd, pattern='$uptime'),
+    replace(power_dialog_cmd, "$UPTIME"),
     unsafeUptime
 )
 
