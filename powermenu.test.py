@@ -2,7 +2,13 @@ import os
 import sys
 
 from utils import (
-    compose
+    Left,
+    Maybe,
+    Right,
+    compose,
+    either,
+    log,
+    yesNoTupleToEither
 )
 
 DIR = os.path.dirname(os.path.abspath(__file__))
@@ -44,11 +50,18 @@ def operatingSystemCommand(action):
         "": 'rofi -e "Sleep not implemented yet"',
         "": "bspc quit",
     }
-    return actions[action] if action in actions else "exit"
+    return Right(actions[action]) \
+        if action in actions else Left("Unknown action")
 
 
 unsafeUptime = lambda _: unsafeCmdExec(uptime_command)
 unsafePowerDialog = lambda cmd: unsafeCmdExec(cmd)
+
+# returns the result of the selected power action plus the yes/no answer
+def unsafeYesNoQuestion(_):
+    res = unsafeCmdExec(yes_no_question_cmd)
+    return Right(_) if len(str(res)) > 0 and str(res).upper()[0] == 'Y' \
+                    else Left('Do nothing')
 
 powerMenuDialog = compose(
     unsafePowerDialog,
@@ -56,10 +69,17 @@ powerMenuDialog = compose(
     unsafeUptime
 )
 
-execPowerAction = compose(
-    unsafeCmdExec,
+getPowerActionCommand = compose(
     operatingSystemCommand,
     powerMenuDialog
 )
 
-execPowerAction(True)
+either(
+    sys.exit,
+    unsafeCmdExec,
+    either(
+        sys.exit,
+        unsafeYesNoQuestion,
+        getPowerActionCommand(True)
+    )
+)
