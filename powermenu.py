@@ -1,74 +1,80 @@
 import os
 import sys
 
-from utils import IO, compose, inc, add, \
-                  upper, concat, id, Maybe, replace, \
-                  first, default
+from utils import (
+    Left,
+    Right,
+    compose,
+    either
+)
 
 DIR = os.path.dirname(os.path.abspath(__file__))
 
-power_menu_rofi_command=f"rofi -theme {DIR}/powermenu.rasi"
-
-uptime_command="uptime -p | sed -e 's/up //g'"
+uptime_command = "uptime -p | sed -e 's/up //g'"
 
 # Options
-shutdown=""
-reboot=""
-lock=""
-suspend=""
-logout=""
+shutdown = ""
+reboot = ""
+lock = ""
+suspend = ""
+logout = ""
 
 # Variable passed to rofi
-power_options=f"{shutdown}\n{reboot}\n{lock}\n{suspend}\n{logout}"
+power_options = f"{shutdown}\n{reboot}\n{lock}\n{suspend}\n{logout}"
 
-power_options_question_cmd=f'echo "{power_options}" | {power_menu_rofi_command} -p "UP - $uptime" -dmenu -selected-row 2'
-yes_no_question_cmd=f"{DIR}/confirm"
+power_menu_rofi_command = f"rofi -theme {DIR}/powermenu.rasi"
+power_dialog_cmd = f'echo "{power_options}" | {power_menu_rofi_command} -p "UP - $uptime" -dmenu -selected-row 2'
 
-def unsafe_cmd_exec(cmd):
-  def _unsafe_op():
+yes_no_question_cmd = f"{DIR}/confirm"
+
+
+def replace(src, pattern):
+    return lambda replacement: str(src).replace(pattern, replacement)
+
+
+def unsafeCmdExec(cmd):
     proc = os.popen(cmd)
     res = proc.read().strip()
     return res
-  return _unsafe_op
 
 
-def possible_actions(action):
-  actions = {
-    "": lambda: "systemctl poweroff",
-    "": lambda: "systemctl reboot",
-    "": lambda: "rofi -e \"Lock not implemented yet\"",
-    "": lambda: "rofi -e \"Sleep not implemented yet\"",
-    "": lambda: "bspc quit",
-  }
-  return actions[action] if action in actions else lambda: False
+def operatingSystemCommand(action):
+    actions = {
+        "": "systemctl poweroff",
+        "": "systemctl reboot",
+        "": 'rofi -e "Lock not implemented yet"',
+        "": 'rofi -e "Sleep not implemented yet"',
+        "": "bspc quit",
+    }
+    return Right(actions[action]) \
+        if action in actions else Left("Unknown action")
 
-ioUptime = IO(unsafe_cmd_exec(uptime_command))
-ioYesNo = IO(unsafe_cmd_exec(yes_no_question_cmd))
 
-power_options_fn = IO.of(replace(power_options_question_cmd)) \
-  .ap(IO.of("$uptime")) \
-  .ap(ioUptime) \
-  .map(unsafe_cmd_exec) \
-  .unsafePerformIO()
+unsafeUptime = lambda _: unsafeCmdExec(uptime_command)
+unsafePowerDialog = lambda cmd: unsafeCmdExec(cmd)
 
-ioPowerOptions = IO(power_options_fn)
+def unsafeYesNoQuestion(_):
+    res = unsafeCmdExec(yes_no_question_cmd)
+    return Right(_) if len(str(res)) > 0 and str(res).upper()[0] == 'Y' \
+                    else Left('Do nothing')
 
-power_command_to_execute = ioPowerOptions \
-  .map(possible_actions) \
-  .map(IO) \
-  .join() \
-  .unsafePerformIO()
+powerMenuDialog = compose(
+    unsafePowerDialog,
+    replace(src=power_dialog_cmd, pattern='$uptime'),
+    unsafeUptime
+)
 
-if not power_command_to_execute:
-    exit()
+getPowerActionCommand = compose(
+    operatingSystemCommand,
+    powerMenuDialog
+)
 
-yes_no_answer = ioYesNo \
-  .map(upper) \
-  .map(default(expected='', d='N')) \
-  .map(first) \
-  .unsafePerformIO()
-
-if yes_no_answer == 'Y':
-  IO(unsafe_cmd_exec(power_command_to_execute)) \
-    .unsafePerformIO()
-
+either(
+    sys.exit,
+    unsafeCmdExec,
+    either(
+        sys.exit,
+        unsafeYesNoQuestion,
+        getPowerActionCommand(True)
+    )
+)
