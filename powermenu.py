@@ -1,7 +1,7 @@
 import os
 import sys
 
-from utils import IO, compose, inc, add, R, \
+from utils import IO, compose, inc, add, \
                   upper, concat, id, Maybe, replace, \
                   first, default
 
@@ -20,7 +20,6 @@ logout=""
 
 # Variable passed to rofi
 power_options=f"{shutdown}\n{reboot}\n{lock}\n{suspend}\n{logout}"
-_msg="Options  -  yes / y / no / n"
 
 power_options_question_cmd=f'echo "{power_options}" | {power_menu_rofi_command} -p "UP - $uptime" -dmenu -selected-row 2'
 yes_no_question_cmd=f"{DIR}/confirm"

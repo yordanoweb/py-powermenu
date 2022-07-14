@@ -21,7 +21,6 @@ logout = ""
 
 # Variable passed to rofi
 power_options = f"{shutdown}\n{reboot}\n{lock}\n{suspend}\n{logout}"
-_msg = "Options  -  yes / y / no / n"
 
 power_menu_rofi_command = f"rofi -theme {DIR}/powermenu.rasi"
 power_dialog_cmd = f'echo "{power_options}" | {power_menu_rofi_command} -p "UP - $uptime" -dmenu -selected-row 2'
