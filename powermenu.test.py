@@ -3,12 +3,9 @@ import sys
 
 from utils import (
     Left,
-    Maybe,
     Right,
     compose,
-    either,
-    log,
-    yesNoTupleToEither
+    either
 )
 
 DIR = os.path.dirname(os.path.abspath(__file__))
