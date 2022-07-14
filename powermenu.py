@@ -23,16 +23,34 @@ power_dialog_cmd = f'echo "{power_options}" | {power_menu_rofi_command} -p "UP -
 yes_no_question_cmd = f"{DIR}/confirm"
 
 
+"""
+Replaces the string "pattern" inside of the original "src" string
+parameter. Returns a new function waiting for the "replacement"
+string.
+
+(string, string) -> f string -> string
+"""
 def replace(src, pattern):
     return lambda replacement: str(src).replace(pattern, replacement)
 
 
+"""
+Executes a command in the operating system and returns its output.
+
+string -> string
+"""
 def unsafeCmdExec(cmd):
     proc = os.popen(cmd)
     res = proc.read().strip()
     return res
 
 
+"""
+Returns the right action to take according to the "action" parameter.
+Takes care of the response.
+
+string -> Either string
+"""
 def operatingSystemCommand(action):
     actions = {
         "": "systemctl poweroff",
@@ -47,7 +65,10 @@ def operatingSystemCommand(action):
 unsafeUptime = lambda _: unsafeCmdExec(uptime_command)
 unsafePowerDialog = lambda cmd: unsafeCmdExec(cmd)
 
-
+"""
+Shows the question "Are you sure (y/n)?" and takes care of
+the answer for further decisions.
+"""
 def unsafeYesNoQuestion(_):
     res = unsafeCmdExec(yes_no_question_cmd)
     return (
@@ -56,13 +77,27 @@ def unsafeYesNoQuestion(_):
         else Left("Do nothing")
     )
 
-
+"""
+Execute the command that returns system uptime. Then, use the returned
+system uptime string, for composing the long string required as parameters
+for rofi being able to draw a power menu dialog.
+"""
 powerMenuDialog = compose(
     unsafePowerDialog, replace(power_dialog_cmd, "$UPTIME"), unsafeUptime
 )
 
+"""
+Returns the matching action among all the possible power actions in
+the rofi dialog shown by "powerMenuDialog" 
+"""
 getPowerActionCommand = compose(operatingSystemCommand, powerMenuDialog)
 
+"""
+The selected power action is only executed if the answer is "Y".
+Otherwise, the execution stops.
+
+(f, f, Monad a) -> Either b
+"""
 powerActionDecision = either(sys.exit, unsafeYesNoQuestion, getPowerActionCommand(True))
 
 either(sys.exit, unsafeCmdExec, powerActionDecision)
