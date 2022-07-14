@@ -60,6 +60,16 @@ def unsafePerformIO(io):
     return io.unsafePerformIO()
 
 
+def join(m):
+    return m.join()
+
+
+def yesNoTupleToEither(t):
+    return Right(t[1]) \
+        if t[0] == True or str(t[0]).upper() == 'Y' \
+        else Left(False)
+
+
 class Either:
     def __init__(self, x):
         self.value = x
