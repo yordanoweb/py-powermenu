@@ -29,6 +29,10 @@ def compose(*funcs):
     return _compose
 
 
+def either(left, right, m):
+    return left(m.value) if isinstance(m, Left) else right(m.value)
+
+
 def upper(s):
     return str(s).upper()
 
@@ -54,10 +58,81 @@ def unsafePerformIO(io):
     return io.unsafePerformIO()
 
 
-class R:
-    @staticmethod
-    def compose(f, g):
-        return lambda: f(g())
+class Either:
+  def __init__(self, x):
+    self.value = x
+
+  @staticmethod
+  def of(x):
+    return Right(x)
+
+
+class Left(Either):
+
+  def isLeft():
+    return True
+
+  def isRight():
+    return False
+  
+  @staticmethod
+  def of(x):
+    raise Exception('`of` called on class Left (value) instead of Either (type)')
+
+  def inspect(self):
+    return f"Left({self.value})"
+
+  def map(self):
+    return self
+
+  def ap(self):
+    return self
+
+  def chain(self):
+    return self
+
+  def join(self):
+    return self
+
+  def sequence(self, of):
+    return of(self)
+
+  def traverse(self, of, fn):
+    return of(self)
+
+
+class Right(Either):
+
+  def isLeft():
+    return False
+
+  def isRight():
+    return True
+  
+  @staticmethod
+  def of(x):
+    raise Exception('`of` called on class Right (value) instead of Either (type)')
+
+  def inspect(self):
+    return "Right({self.value})"
+
+  def map(self, fn):
+    return Either.of(fn(self.value))
+
+  def ap(self, f):
+    return f.map(self.value)
+
+  def chain(self, fn):
+    return fn(self.value)
+
+  def join(self):
+    return self.value
+
+  def sequence(self, of):
+    return self.traverse(of, id)
+
+  def traverse(self, of, fn):
+    fn(self.value).map(Either.of)
 
 
 class Maybe:
@@ -108,7 +183,7 @@ class IO:
         return IO(lambda: x)
 
     def map(self, fn):
-        return IO(R.compose(fn, self.unsafePerformIO))
+        return IO(compose(fn, self.unsafePerformIO))
 
     def ap(self, some_container):
         return self.chain(lambda fn: some_container.map(fn))
