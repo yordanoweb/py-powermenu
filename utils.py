@@ -21,11 +21,13 @@ def add(n):
 def compose(*funcs):
     _funcs = list(funcs)
     _funcs.reverse()
+
     def _compose(x):
         result = x
         for f in _funcs:
             result = f(result)
         return result
+
     return _compose
 
 
@@ -59,86 +61,83 @@ def unsafePerformIO(io):
 
 
 class Either:
-  def __init__(self, x):
-    self.value = x
+    def __init__(self, x):
+        self.value = x
 
-  @staticmethod
-  def of(x):
-    return Right(x)
+    @staticmethod
+    def of(x):
+        return Right(x)
 
 
 class Left(Either):
+    def isLeft():
+        return True
 
-  def isLeft():
-    return True
+    def isRight():
+        return False
 
-  def isRight():
-    return False
-  
-  @staticmethod
-  def of(x):
-    raise Exception('`of` called on class Left (value) instead of Either (type)')
+    @staticmethod
+    def of(x):
+        raise Exception("`of` called on class Left (value) instead of Either (type)")
 
-  def inspect(self):
-    return f"Left({self.value})"
+    def inspect(self):
+        return f"Left({self.value})"
 
-  def map(self):
-    return self
+    def map(self):
+        return self
 
-  def ap(self):
-    return self
+    def ap(self):
+        return self
 
-  def chain(self):
-    return self
+    def chain(self):
+        return self
 
-  def join(self):
-    return self
+    def join(self):
+        return self
 
-  def sequence(self, of):
-    return of(self)
+    def sequence(self, of):
+        return of(self)
 
-  def traverse(self, of, fn):
-    return of(self)
+    def traverse(self, of, fn):
+        return of(self)
 
 
 class Right(Either):
+    def isLeft():
+        return False
 
-  def isLeft():
-    return False
+    def isRight():
+        return True
 
-  def isRight():
-    return True
-  
-  @staticmethod
-  def of(x):
-    raise Exception('`of` called on class Right (value) instead of Either (type)')
+    @staticmethod
+    def of(x):
+        raise Exception("`of` called on class Right (value) instead of Either (type)")
 
-  def inspect(self):
-    return "Right({self.value})"
+    def inspect(self):
+        return "Right({self.value})"
 
-  def map(self, fn):
-    return Either.of(fn(self.value))
+    def map(self, fn):
+        return Either.of(fn(self.value))
 
-  def ap(self, f):
-    return f.map(self.value)
+    def ap(self, f):
+        return f.map(self.value)
 
-  def chain(self, fn):
-    return fn(self.value)
+    def chain(self, fn):
+        return fn(self.value)
 
-  def join(self):
-    return self.value
+    def join(self):
+        return self.value
 
-  def sequence(self, of):
-    return self.traverse(of, id)
+    def sequence(self, of):
+        return self.traverse(of, id)
 
-  def traverse(self, of, fn):
-    fn(self.value).map(Either.of)
+    def traverse(self, of, fn):
+        fn(self.value).map(Either.of)
 
 
 class Maybe:
-
     def __init__(self, value) -> None:
-       self.value = value
+        self.value = value
 
     def isNothing(self):
         return self.value == None or self.value == False
