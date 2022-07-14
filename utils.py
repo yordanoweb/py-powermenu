@@ -148,7 +148,7 @@ class Maybe:
     def inspect(self):
         return "Nothing" if self.isNothing else f"Just({self.value})"
 
-    @classmethod
+    @staticmethod
     def of(x):
         return Maybe(x)
 
