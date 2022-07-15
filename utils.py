@@ -18,6 +18,10 @@ def add(n):
     return lambda m: n + m
 
 
+def map(fn):
+    return lambda m: m.map(fn)
+
+
 def compose(*funcs):
     _funcs = list(funcs)
     _funcs.reverse()
