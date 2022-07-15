@@ -40,7 +40,7 @@ Takes care of the response.
 
 string -> Either string
 """
-def operatingSystemCommand(action):
+def powerOperatingSystemCommand(action):
     actions = {
         "": "systemctl poweroff",
         "": "systemctl reboot",
@@ -79,7 +79,7 @@ powerMenuDialog = compose(
 Returns the matching action among all the possible power actions in
 the rofi dialog shown by "powerMenuDialog" 
 """
-getPowerActionCommand = compose(operatingSystemCommand, powerMenuDialog)
+getPowerActionCommand = compose(powerOperatingSystemCommand, powerMenuDialog)
 
 """
 The selected power action is only executed if the answer is "Y".
