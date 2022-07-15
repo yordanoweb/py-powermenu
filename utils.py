@@ -1,3 +1,6 @@
+import os
+
+
 def id(n):
     return n
 
@@ -72,6 +75,17 @@ def yesNoTupleToEither(t):
     return Right(t[1]) \
         if t[0] == True or str(t[0]).upper() == 'Y' \
         else Left(False)
+
+
+"""
+Executes a command in the operating system and returns its output.
+
+string -> string
+"""
+def unsafeCmdExec(cmd):
+    proc = os.popen(cmd)
+    res = proc.read().strip()
+    return res
 
 
 class Either:
