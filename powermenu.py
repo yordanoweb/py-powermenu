@@ -1,7 +1,7 @@
 import os
 import sys
 
-from utils import Left, Right, compose, either
+from utils import Left, Right, compose, either, unsafeCmdExec
 
 DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -32,17 +32,6 @@ string.
 """
 def replace(src, pattern):
     return lambda replacement: str(src).replace(pattern, replacement)
-
-
-"""
-Executes a command in the operating system and returns its output.
-
-string -> string
-"""
-def unsafeCmdExec(cmd):
-    proc = os.popen(cmd)
-    res = proc.read().strip()
-    return res
 
 
 """

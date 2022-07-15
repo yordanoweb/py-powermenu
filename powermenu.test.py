@@ -5,7 +5,8 @@ from utils import (
     Left,
     Right,
     compose,
-    either
+    either,
+    unsafeCmdExec
 )
 
 DIR = os.path.dirname(os.path.abspath(__file__))
@@ -30,12 +31,6 @@ yes_no_question_cmd = f"{DIR}/confirm"
 
 def replace(src, pattern):
     return lambda replacement: str(src).replace(pattern, replacement)
-
-
-def unsafeCmdExec(cmd):
-    proc = os.popen(cmd)
-    res = proc.read().strip()
-    return res
 
 
 def operatingSystemCommand(action):
