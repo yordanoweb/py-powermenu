@@ -210,7 +210,7 @@ class IO:
         self.unsafePerformIO = fn
 
     def inspect(self):
-        return "IO(?)"
+        return f"IO({self.unsafePerformIO()})"
 
     @staticmethod
     def of(x):
