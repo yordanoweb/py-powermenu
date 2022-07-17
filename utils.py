@@ -214,7 +214,7 @@ class IO:
 
     @staticmethod
     def of(x):
-        return IO(lambda: x)
+        return IO(lambda *args: x)
 
     def map(self, fn):
         return IO(compose(fn, self.unsafePerformIO))
@@ -226,7 +226,7 @@ class IO:
         return self.map(fn).join()
 
     def join(self):
-        return IO(lambda: self.unsafePerformIO().unsafePerformIO())
+        return IO(lambda *args: self.unsafePerformIO().unsafePerformIO())
 
 
 class Identity:
