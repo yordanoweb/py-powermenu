@@ -206,6 +206,9 @@ class Maybe:
 
 
 class IO:
+
+    unsafePerformIO
+
     def __init__(self, fn):
         self.unsafePerformIO = fn
 
@@ -214,19 +217,24 @@ class IO:
 
     @staticmethod
     def of(x):
-        return IO(lambda *args: x)
+        _new = IO(lambda: x)
+        return _new
 
     def map(self, fn):
-        return IO(compose(fn, self.unsafePerformIO))
+        _mapped = IO(compose(fn, self.unsafePerformIO))
+        return _mapped
 
-    def ap(self, some_container):
-        return self.chain(lambda fn: some_container.map(fn))
+    def ap(self, m):
+        _chained = self.chain(lambda fn: m.map(fn))
+        return _chained
 
     def chain(self, fn):
-        return self.map(fn).join()
+        _joined = self.map(fn).join()
+        return _joined
 
     def join(self):
-        return IO(lambda *args: self.unsafePerformIO().unsafePerformIO())
+        _io = IO(lambda: self.unsafePerformIO().unsafePerformIO())
+        return _io
 
 
 class Identity:
