@@ -21,16 +21,19 @@ def add(n):
     return lambda m: n + m
 
 
+def powTwo(x):
+    return x * 2
+
+
 def map(fn):
     return lambda m: m.map(fn)
 
 
 def compose(*funcs):
-    _funcs = list(funcs)
-    _funcs.reverse()
+    _funcs = list(funcs).__reversed__()
 
-    def _compose(x):
-        result = x
+    def _compose(*x):
+        result = x[0] if len(x) > 0 else None
         for f in _funcs:
             result = f(result)
         return result
